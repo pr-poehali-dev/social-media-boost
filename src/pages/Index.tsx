@@ -67,6 +67,7 @@ const Index = () => {
 
   const plans = [
     {
+      id: 'start',
       name: 'Старт',
       price: '990',
       description: 'Для начинающих',
@@ -80,6 +81,7 @@ const Index = () => {
       popular: false
     },
     {
+      id: 'profi',
       name: 'Профи',
       price: '2490',
       description: 'Самый популярный',
@@ -94,6 +96,7 @@ const Index = () => {
       popular: true
     },
     {
+      id: 'business',
       name: 'Бизнес',
       price: '4990',
       description: 'Для профессионалов',
@@ -301,7 +304,7 @@ const Index = () => {
                   <Button 
                     className="w-full" 
                     variant={plan.popular ? 'default' : 'outline'}
-                    onClick={handleDashboardClick}
+                    onClick={() => navigate(`/checkout?plan=${plan.id}`)}
                   >
                     Выбрать план
                   </Button>
