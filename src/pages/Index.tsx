@@ -1,17 +1,29 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
+  const navigate = useNavigate();
+  const { isAuthenticated, logout } = useAuth();
 
   const scrollToSection = (id: string) => {
     setActiveSection(id);
     const element = document.getElementById(id);
     element?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleDashboardClick = () => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    } else {
+      navigate('/auth');
+    }
   };
 
   const services = [
@@ -169,9 +181,20 @@ const Index = () => {
               <button onClick={() => scrollToSection('faq')} className="text-sm hover:text-primary transition-colors">
                 FAQ
               </button>
-              <Button onClick={() => scrollToSection('dashboard')} variant="default">
-                Личный кабинет
-              </Button>
+              {isAuthenticated ? (
+                <div className="flex items-center gap-3">
+                  <Button onClick={() => navigate('/dashboard')} variant="default">
+                    Личный кабинет
+                  </Button>
+                  <Button onClick={logout} variant="outline" size="sm">
+                    <Icon name="LogOut" size={16} />
+                  </Button>
+                </div>
+              ) : (
+                <Button onClick={() => navigate('/auth')} variant="default">
+                  Войти
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -278,7 +301,7 @@ const Index = () => {
                   <Button 
                     className="w-full" 
                     variant={plan.popular ? 'default' : 'outline'}
-                    onClick={() => scrollToSection('dashboard')}
+                    onClick={handleDashboardClick}
                   >
                     Выбрать план
                   </Button>
@@ -338,150 +361,16 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="dashboard" className="py-20 px-4 bg-muted/30">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Личный кабинет</h2>
-            <p className="text-muted-foreground text-lg">
-              Управляйте накруткой и отслеживайте статистику
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardDescription>Лайки за месяц</CardDescription>
-                <CardTitle className="text-3xl">2,847</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2 text-sm text-green-600">
-                  <Icon name="TrendingUp" size={16} />
-                  <span>+12.5% за неделю</span>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="pb-3">
-                <CardDescription>Просмотры за месяц</CardDescription>
-                <CardTitle className="text-3xl">18,942</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2 text-sm text-green-600">
-                  <Icon name="TrendingUp" size={16} />
-                  <span>+8.3% за неделю</span>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="pb-3">
-                <CardDescription>Новые подписчики</CardDescription>
-                <CardTitle className="text-3xl">342</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2 text-sm text-green-600">
-                  <Icon name="TrendingUp" size={16} />
-                  <span>+15.7% за неделю</span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>Автоматическое расписание</CardTitle>
-              <CardDescription>Настройте параметры автоматической накрутки</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Соцсеть</label>
-                  <select className="w-full px-3 py-2 border rounded-lg bg-background">
-                    <option>ВКонтакте</option>
-                    <option>Telegram</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Тип накрутки</label>
-                  <select className="w-full px-3 py-2 border rounded-lg bg-background">
-                    <option>Лайки</option>
-                    <option>Просмотры</option>
-                    <option>Подписчики</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Количество в день</label>
-                  <input 
-                    type="number" 
-                    placeholder="100" 
-                    className="w-full px-3 py-2 border rounded-lg bg-background"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Время запуска</label>
-                  <input 
-                    type="time" 
-                    className="w-full px-3 py-2 border rounded-lg bg-background"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Ссылка на пост/профиль</label>
-                <input 
-                  type="url" 
-                  placeholder="https://vk.com/..." 
-                  className="w-full px-3 py-2 border rounded-lg bg-background"
-                />
-              </div>
-              <div className="flex gap-4">
-                <Button className="flex-1">
-                  <Icon name="Play" size={16} className="mr-2" />
-                  Запустить
-                </Button>
-                <Button variant="outline" className="flex-1">
-                  <Icon name="Settings" size={16} className="mr-2" />
-                  Дополнительно
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Активные задачи</CardTitle>
-              <CardDescription>Текущие процессы накрутки</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Icon name="ThumbsUp" size={20} className="text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-medium">Лайки ВКонтакте</p>
-                      <p className="text-sm text-muted-foreground">250 из 500 выполнено</p>
-                    </div>
-                  </div>
-                  <Badge variant="secondary">Активно</Badge>
-                </div>
-                
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center">
-                      <Icon name="Users" size={20} className="text-secondary" />
-                    </div>
-                    <div>
-                      <p className="font-medium">Подписчики Telegram</p>
-                      <p className="text-sm text-muted-foreground">Запуск в 14:00</p>
-                    </div>
-                  </div>
-                  <Badge variant="outline">Запланировано</Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+      <section id="cta" className="py-20 px-4 bg-gradient-to-br from-primary/10 via-background to-secondary/10">
+        <div className="container mx-auto max-w-4xl text-center">
+          <h2 className="text-4xl font-bold mb-4">Готовы начать?</h2>
+          <p className="text-xl text-muted-foreground mb-8">
+            Присоединяйтесь к тысячам пользователей, которые уже используют BoostPro
+          </p>
+          <Button size="lg" onClick={handleDashboardClick} className="text-base">
+            {isAuthenticated ? 'Перейти в кабинет' : 'Начать сейчас'}
+            <Icon name="ArrowRight" size={20} className="ml-2" />
+          </Button>
         </div>
       </section>
 
@@ -502,7 +391,7 @@ const Index = () => {
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><button onClick={() => scrollToSection('services')}>Услуги</button></li>
                 <li><button onClick={() => scrollToSection('pricing')}>Тарифы</button></li>
-                <li><button onClick={() => scrollToSection('dashboard')}>Личный кабинет</button></li>
+                <li><button onClick={handleDashboardClick}>Личный кабинет</button></li>
               </ul>
             </div>
             <div>
